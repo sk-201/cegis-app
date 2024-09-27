@@ -1,15 +1,43 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const ItemForm = () => {
   const { user, setUser } = useContext(UserContext);
+  const navigate = useNavigate();
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("TOKEN");
+    navigate("/");
+  };
+  const sendEntry = async () => {
+    let dataSend = {
+      school: "23",
+      username: user.username,
+      item: "Classroom",
+    };
+    try {
+      const res = await fetch(`${process.env.REACT_APP_BASE_URL}/insertEntry`, {
+        method: "POST",
+        body: JSON.stringify(dataSend),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      if (res.status == 200) {
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="w-full h-screen flex items-center justify-center mt-20 ">
       <div className=" max-w-md  ">
         <button
-          className="bg-red-500 absolute hover:bg-red-800  right-5 lg:right-10 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          className="bg-red-500 absolute hover:bg-red-800 top-5 right-5 lg:right-10 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           type="button"
-          onClick={() => setUser(null)}
+          onClick={logout}
         >
           Log out
         </button>
@@ -18,6 +46,20 @@ const ItemForm = () => {
         </p>
 
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              for="school"
+            >
+              School ID
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="school"
+              type="text"
+              placeholder="School Id"
+            />
+          </div>
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
@@ -121,6 +163,7 @@ const ItemForm = () => {
             <button
               className="bg-blue-500 hover:bg-blue-700 w-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
+              onClick={sendEntry}
             >
               Confirm
             </button>

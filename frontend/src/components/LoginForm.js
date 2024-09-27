@@ -4,14 +4,14 @@ import { UserContext } from "../context/UserContext";
 const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { user, setUser } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
   const login = async () => {
     let dataSend = {
       username: username,
       password: password,
     };
     try {
-      const res = await fetch("http://localhost:3001/login", {
+      const res = await fetch(`${process.env.REACT_APP_BASE_URL}/login`, {
         method: "POST",
         body: JSON.stringify(dataSend),
         headers: {
@@ -19,8 +19,10 @@ const LoginForm = () => {
           "Content-Type": "application/json",
         },
       });
-      if (res.status == 200) {
+      if (res.status === 200) {
+        localStorage.setItem("TOKEN", username);
         setUser({ name: username });
+
         setUsername("");
         setPassword("");
       }

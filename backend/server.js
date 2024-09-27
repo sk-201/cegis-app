@@ -13,10 +13,7 @@ const pool = mysql
     database: process.env.MY_SQL_DATABASE,
   })
   .promise();
-// app.use((req, res, next) => {
-//   res.setHeader("Access-Control-Allow-Origin", "*");
-//   next();
-// });
+
 app.use(express.json());
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -37,12 +34,61 @@ app.post("/login", async (req, res) => {
     console.log("Error", error);
   }
 });
-app.get("/", (req, res) => {
-  res.send({ status: 200, message: "Hi" });
+app.post("/insertEntry", async (req, res) => {
+  const { school, username, item } = req.body;
+
+  try {
+    const [rows] = await pool.query(
+      `INSERT INTO Infrastructure (school_id, member_id, item_name, available, working_condition) VALUES
+('${school}', '${username}', '${item}', TRUE, TRUE);`
+    );
+    if (rows.length > 0) {
+      res.status(200).send({ message: "Insertion Successfull" });
+    } else {
+      res.status(404).send({
+        message: "Something went wrong",
+      });
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
 });
-const getResults = async () => {
-  const [result] = await pool.query("select * from credentials");
-  console.log("r", result);
-};
-// getResults();
+app.post("/getData", async (req, res) => {
+  try {
+    const { stateName } = req.body;
+    const [rows] = await pool.query(
+      `SELECT s.school_name, i.item_name, i.available, i.working_condition, d.district_name, t.taluk_name, b.block_name
+FROM School s
+JOIN Block b ON s.block_id = b.block_id
+JOIN Taluk t ON b.taluk_id = t.taluk_id
+JOIN District d ON t.district_id = d.district_id
+JOIN State st ON d.state_id = st.state_id
+JOIN Infrastructure i ON s.school_id = i.school_id
+WHERE st.state_name = '${stateName}';`
+    );
+    if (rows.length > 0) {
+      res.status(200).send({ rows: rows, message: "Successfully Fetched" });
+    } else {
+      res.status(500).send({
+        message: "Internal Error",
+      });
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+});
+app.get("/getStatesData", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`SELECT * from State`);
+    if (rows.length > 0) {
+      res.status(200).send({ rows: rows, message: "Successfully Fetched" });
+    } else {
+      res.status(500).send({
+        message: "Internal Error",
+      });
+    }
+  } catch (error) {
+    console.log("Error", error);
+  }
+});
 app.listen(3001, () => console.log("Listening on port 3001"));

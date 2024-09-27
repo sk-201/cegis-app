@@ -1,93 +1,91 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import BarChart from "../components/BarChart";
+
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
+import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+import Dropdown from "../components/Dropdown";
 
 Chart.register(CategoryScale);
 const Dashboard = () => {
-  const Data = [
-    {
-      id: 1,
-      year: 2016,
-      userGain: 80000,
-      userLost: 823,
-    },
-    {
-      id: 2,
-      year: 2017,
-      userGain: 45677,
-      userLost: 345,
-    },
-    {
-      id: 3,
-      year: 2018,
-      userGain: 78888,
-      userLost: 555,
-    },
-    {
-      id: 4,
-      year: 2019,
-      userGain: 90000,
-      userLost: 4555,
-    },
-    {
-      id: 5,
-      year: 2020,
-      userGain: 4300,
-      userLost: 234,
-    },
-  ];
-  const [chartData, setChartData] = useState({
-    labels: Data.map((data) => data.year),
-    datasets: [
-      {
-        label: "Users Gained ",
-        data: Data.map((data) => data.userGain),
-        backgroundColor: [
-          "rgba(75,192,192,1)",
-          "#ecf0f1",
-          "#50AF95",
-          "#f3ba2f",
-          "#2a71d0",
-        ],
-        borderColor: "black",
-        borderWidth: 2,
-      },
-    ],
-  });
-
-  const data_set = {
-    labels: ["Red", "Orange", "Blue"],
-    // datasets is an array of objects where each object represents a set of data to display corresponding to the labels above. for brevity, we'll keep it at one object
-    datasets: [
-      {
-        label: "Popularity of colours",
-        data: [55, 23, 96],
-        // you can set indiviual colors for each bar
-        backgroundColor: [
-          "rgba(255, 255, 255, 0.6)",
-          "rgba(255, 255, 255, 0.6)",
-          "rgba(255, 255, 255, 0.6)",
-        ],
-        borderWidth: 1,
-      },
-    ],
+  const { user, setUser } = useContext(UserContext);
+  const [selectedState, setSelectedState] = useState("Delhi");
+  const [dataset, setDataSet] = useState();
+  const navigate = useNavigate();
+  const getData = async () => {
+    let dataSend = {
+      stateName: selectedState,
+    };
+    try {
+      const data = await fetch(`${process.env.REACT_APP_BASE_URL}/getData`, {
+        method: "POST",
+        body: JSON.stringify(dataSend),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      const response = await data.json();
+      setDataSet(response.rows);
+    } catch (error) {
+      console.log(error);
+    }
   };
-  //   const items = [
-  //     { id: 1, name: "Classrooms" },
-  //     { id: 2, name: "Benches" },
-  //     { id: 3, name: "Tables" },
-  //     { id: 4, name: "Blackboards" },
-  //     { id: 5, name: "Libraries" },
-  //     { id: 6, name: "Playgrounds" },
-  //     { id: 7, name: "Toilets" },
-  //     { id: 8, name: "Water" },
-  //   ];
+  useEffect(() => {
+    let username = localStorage.getItem("TOKEN");
+
+    if (!user && username !== "0000") {
+      navigate("/");
+    }
+    getData();
+  }, [selectedState]);
+  useEffect(() => {
+    setChartData({
+      labels: dataset?.map((data) => data.item_name + " " + data.district_name),
+      datasets: [
+        {
+          label: "Items",
+          data: dataset?.map((data) => data.available),
+          backgroundColor: [
+            "rgba(75,192,192,1)",
+            "#ecf0f1",
+            "#50AF95",
+            "#f3ba2f",
+            "#2a71d0",
+          ],
+          borderColor: "black",
+          borderWidth: 2,
+        },
+      ],
+    });
+  }, [dataset]);
+
+  const [chartData, setChartData] = useState({});
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("TOKEN");
+    navigate("/");
+  };
   return (
-    <div className=" w-[80%]  mx-auto">
-      {/* <PieChart chartData={chartData} /> */}
-      <BarChart chartData={chartData} />
+    <div className="w-full">
+      <div className=" flex justify-end mx-20 mt-5">
+        <Dropdown
+          selectedState={selectedState}
+          setSelectedState={setSelectedState}
+        />
+        <button
+          className="bg-red-500   mx-20 hover:bg-red-800   text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+          onClick={logout}
+        >
+          Log out
+        </button>
+      </div>
+      <div className=" w-[80%]  mx-auto ">
+        {dataset === undefined ? null : <BarChart chartData={chartData} />}
+      </div>
     </div>
   );
 };
