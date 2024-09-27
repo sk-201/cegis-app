@@ -5,6 +5,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 dotenv.config();
 app.use(cors());
+//creating connection
 const pool = mysql
   .createPool({
     host: process.env.MY_SQL_HOST,
@@ -15,6 +16,7 @@ const pool = mysql
   .promise();
 
 app.use(express.json());
+//authentication
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -34,15 +36,18 @@ app.post("/login", async (req, res) => {
     console.log("Error", error);
   }
 });
+//inserting items
 app.post("/insertEntry", async (req, res) => {
-  const { school, username, item } = req.body;
+  const { school, username, item, available, working } = req.body;
+  console.log();
 
   try {
     const [rows] = await pool.query(
       `INSERT INTO Infrastructure (school_id, member_id, item_name, available, working_condition) VALUES
-('${school}', '${username}', '${item}', TRUE, TRUE);`
+(${school}, ${username}, '${item}', ${available} ,${working});`
     );
-    if (rows.length > 0) {
+
+    if (rows.warningStatus == 0) {
       res.status(200).send({ message: "Insertion Successfull" });
     } else {
       res.status(404).send({
@@ -53,6 +58,7 @@ app.post("/insertEntry", async (req, res) => {
     console.log("Error", error);
   }
 });
+//getting data for dashboard
 app.post("/getData", async (req, res) => {
   try {
     const { stateName } = req.body;
@@ -77,6 +83,7 @@ WHERE st.state_name = '${stateName}';`
     console.log("Error", error);
   }
 });
+//getting data for states
 app.get("/getStatesData", async (req, res) => {
   try {
     const [rows] = await pool.query(`SELECT * from State`);

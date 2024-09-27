@@ -1,9 +1,13 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
 const ItemForm = () => {
   const { user, setUser } = useContext(UserContext);
+  const [school, setSchool] = useState("");
+  const [item, setItem] = useState("Classrooms");
+  const [available, setAvailable] = useState(false);
+  const [working, setWorking] = useState(false);
   const navigate = useNavigate();
   const logout = () => {
     setUser(null);
@@ -12,9 +16,11 @@ const ItemForm = () => {
   };
   const sendEntry = async () => {
     let dataSend = {
-      school: "23",
+      school: school,
       username: user.username,
-      item: "Classroom",
+      item: item,
+      available: available,
+      working: working,
     };
     try {
       const res = await fetch(`${process.env.REACT_APP_BASE_URL}/insertEntry`, {
@@ -26,11 +32,26 @@ const ItemForm = () => {
         },
       });
       if (res.status == 200) {
+        alert("Insertion Done");
+        setSchool("");
+        setItem("Classrooms");
+        setAvailable(false);
+        setWorking(false);
       }
     } catch (error) {
       console.log(error.message);
     }
   };
+  const items = [
+    { id: 1, name: "Classrooms" },
+    { id: 2, name: "Benches" },
+    { id: 3, name: "Tables" },
+    { id: 4, name: "Blackboards" },
+    { id: 5, name: "Libraries" },
+    { id: 6, name: "Playgrounds" },
+    { id: 7, name: "Toilets" },
+    { id: 8, name: "Waters" },
+  ];
   return (
     <div className="w-full h-screen flex items-center justify-center mt-20 ">
       <div className=" max-w-md  ">
@@ -41,7 +62,7 @@ const ItemForm = () => {
         >
           Log out
         </button>
-        <p className="text-2xl text-center font-bold mt-16 mb-10">
+        <p className="text-2xl text-center font-bold  mb-10">
           Please fill the following information
         </p>
 
@@ -57,6 +78,8 @@ const ItemForm = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="school"
               type="text"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
               placeholder="School Id"
             />
           </div>
@@ -65,98 +88,54 @@ const ItemForm = () => {
               className="block text-gray-700 text-sm font-bold mb-2"
               for="classrooms"
             >
-              Classrooms
+              Items
             </label>
-            <input
+            <select
+              value={item}
+              onChange={(e) => setItem(e.target.value)}
+              id="items"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="classrooms"
-              type="number"
-              placeholder="Classrooms"
-            />
+            >
+              {items.map((item) => {
+                return (
+                  <option key={item.id} value={item.name}>
+                    {item.name}
+                  </option>
+                );
+              })}
+            </select>
           </div>
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              for="benches"
-            >
-              Benches
-            </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="benches"
-              type="number"
-              placeholder="Benches"
+              type="radio"
+              name="available"
+              onClick={() => setAvailable(true)}
+              class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+              id="available"
+              checked={available}
             />
+            <label
+              for="available"
+              className="text-md mx-2 text-gray-700 text-sm font-normal mb-2"
+            >
+              Available
+            </label>
           </div>
           <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              for="tables"
-            >
-              Tables
-            </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="tables"
-              type="number"
-              placeholder="Tables"
+              type="radio"
+              name="working"
+              onClick={() => setWorking(true)}
+              class="shrink-0 mt-0.5 border-gray-200 rounded-full text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+              id="working"
+              checked={working}
             />
-          </div>
-          <div className="mb-5">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              for="libraries"
+              for="working"
+              className="text-md mx-2 text-gray-700 text-sm font-normal mb-2"
             >
-              Libraries
+              Working Condition
             </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="libraries"
-              type="number"
-              placeholder="Libraries"
-            />
-            <div className="mb-5 mt-2">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                for="playground"
-              >
-                Playgrounds
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="playground"
-                type="number"
-                placeholder="Playgrounds"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                for="toilets"
-              >
-                Toilets
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="toilet"
-                type="number"
-                placeholder="Toilets"
-              />
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                for="water"
-              >
-                Water
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="water"
-                type="number"
-                placeholder="Water"
-              />
-            </div>
           </div>
 
           <div className="flex items-center justify-between ">
