@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
 const ItemForm = () => {
+  const { user, setUser } = useContext(UserContext);
   return (
     <div className="w-full h-screen flex items-center justify-center mt-20 ">
       <div className=" max-w-md  ">
-        <p className="text-2xl text-center font-bold mb-10">
+        <button
+          className="bg-red-500 absolute hover:bg-red-800  right-5 lg:right-10 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          type="button"
+          onClick={() => setUser(null)}
+        >
+          Log out
+        </button>
+        <p className="text-2xl text-center font-bold mt-16 mb-10">
           Please fill the following information
         </p>
+
         <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
           <div className="mb-4">
             <label

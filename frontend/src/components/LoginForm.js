@@ -1,6 +1,33 @@
-import React from "react";
+import React, { useContext, useState } from "react";
+import { UserContext } from "../context/UserContext";
 
 const LoginForm = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { user, setUser } = useContext(UserContext);
+  const login = async () => {
+    let dataSend = {
+      username: username,
+      password: password,
+    };
+    try {
+      const res = await fetch("http://localhost:3001/login", {
+        method: "POST",
+        body: JSON.stringify(dataSend),
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      if (res.status == 200) {
+        setUser({ name: username });
+        setUsername("");
+        setPassword("");
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="w-full h-screen flex items-center justify-center ">
       <div className=" max-w-md  ">
@@ -17,6 +44,8 @@ const LoginForm = () => {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="username"
               type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="E-id"
             />
           </div>
@@ -31,6 +60,8 @@ const LoginForm = () => {
               className="shadow appearance-none border  rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
               id="password"
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="******************"
             />
             {/* <p className="text-red-500 text-xs italic">
@@ -41,6 +72,7 @@ const LoginForm = () => {
             <button
               className="bg-blue-500 hover:bg-blue-700 w-full text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               type="button"
+              onClick={login}
             >
               Sign In
             </button>

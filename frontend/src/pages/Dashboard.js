@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import PieCard from "../components/PieCard";
+
 import BarChart from "../components/BarChart";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
