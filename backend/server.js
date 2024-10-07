@@ -39,7 +39,6 @@ app.post("/login", async (req, res) => {
 //inserting items
 app.post("/insertEntry", async (req, res) => {
   const { school, username, item, available, working } = req.body;
-  console.log();
 
   try {
     const [rows] = await pool.query(
@@ -55,7 +54,7 @@ app.post("/insertEntry", async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error", error);
+    res.status(404).send({ message: "Please check all the fields once" });
   }
 });
 //getting data for dashboard

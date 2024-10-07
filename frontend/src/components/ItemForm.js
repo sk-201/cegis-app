@@ -17,7 +17,7 @@ const ItemForm = () => {
   const sendEntry = async () => {
     let dataSend = {
       school: school,
-      username: user.username,
+      username: user.name,
       item: item,
       available: available,
       working: working,
@@ -37,9 +37,12 @@ const ItemForm = () => {
         setItem("Classrooms");
         setAvailable(false);
         setWorking(false);
+      } else {
+        const error = await res.json();
+        alert(error.message);
       }
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
     }
   };
   const items = [
