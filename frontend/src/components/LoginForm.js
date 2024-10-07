@@ -25,6 +25,10 @@ const LoginForm = () => {
 
         setUsername("");
         setPassword("");
+      } else {
+        const error = await res.json();
+
+        alert(error.message);
       }
     } catch (error) {
       console.log(error.message);
